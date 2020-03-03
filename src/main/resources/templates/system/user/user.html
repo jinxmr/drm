@@ -17,10 +17,14 @@
                 <div class="layui-card-header">用户列表</div>
                 <div class="layui-card-body">
                     <div class="layui-btn-group test-table-operate-btn" style="margin-bottom: 10px;">
-                        <button class="layui-btn layui-btn-danger" shiro:hasPermission="system:user:remove" data-type="removes">删除</button>
+                        <button class="layui-btn layui-btn-danger" shiro:hasPermission="system:user:remove"
+                                data-type="removes">删除
+                        </button>
                     </div>
                     <div class="layui-btn-group test-table-operate-btn" style="margin-bottom: 10px;">
-                        <button class="layui-btn layui-btn-blue" shiro:hasPermission="system:user:add" data-type="add">新增</button>
+                        <button class="layui-btn layui-btn-blue" shiro:hasPermission="system:user:add" data-type="add">
+                            新增
+                        </button>
                     </div>
                     <form id="articleSearch" class="layui-form layui-form-pane" method="get" action=""
                           style="margin-top: 20px;">
@@ -47,8 +51,10 @@
 </div>
 <script type="text/html" id="row_opt">
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit" shiro:hasPermission="system:user:edit">查看</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="remove" shiro:hasPermission="system:user:remove">删除</a>
-    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pwdReset" shiro:hasPermission="system:user:reset">密码重置</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="remove"
+       shiro:hasPermission="system:user:remove">删除</a>
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pwdReset"
+       shiro:hasPermission="system:user:reset">密码重置</a>
 </script>
 <script type="text/html" id="switchTpl">
     <input type="checkbox" name="status" value="{{d.id}}" lay-skin="switch" lay-text="启用|停用" lay-filter="status" {{
@@ -67,8 +73,9 @@
     }).use(['form', 'index', 'table', 'laydate'], function () {
         /*var kw = "";
         addData(kw);*/
-
         var table = layui.table;
+
+        var checkArr = [];
         table.render({
             elem: '#tables'
             , id: 'tbReload'
@@ -151,50 +158,78 @@
 
         });
 
-        var $ = layui.$, active = {
-            removes: function () { //获取选中数据
-                let checkStatus = table.checkStatus('tbReload')
-                    , data = checkStatus.data;
-                if (data.length == 0) {
-                    layer.msg(`请选择操作数据`);
-                    return;
-                }
-                let ids = "";
-                for (let i in data) {
-                    ids += data[i].id + ",";
-                }
-                $.post(ctx + "back/sysUser/remove", {ids: ids}, function (data) {
-                    layer.msg(data.msg);
-                    if (data.code == 0) {
-                        table.reload('tbReload');
-                    }
-                })
-            },
-            add: function () { //新增
-                location.href = ctx + "back/sysUser/add";
-            },
-            reload: function () {
-                let loginName = $('#loginName').val();
-                let userName = $('#userName').val();
-                //执行重载
-                table.reload('tbReload', {
-                    where: {
-                        loginName: loginName,
-                        userName: userName
-                    }
-                });
-            }
-        };
 
-        $('.test-table-reload-btn .layui-btn').on('click', function () {
-            var type = $(this).data('type');
-            active[type] ? active[type].call(this) : '';
-        });
-        $('.test-table-operate-btn .layui-btn').on('click', function () {
-            var type = $(this).data('type');
-            active[type] ? active[type].call(this) : '';
-        });
+        table.on('checkbox(tables)', function (obj) {
+            let isAll = obj.type;   //选中类型：如果触发的是全选，则为：all，如果触发的是单选，则为：one
+            if (isAll === 'one') {   //当前为单选
+                let current = obj.data.id;  //当前选中行的ID
+                let isChecked = obj.checked;    //是否被选中 选中：true 未选中：false
+                //current：当前选中的数据ID；checkArr：自定义数组；result：返回值。当前数组存在则返回下标，否则返回-1
+                let result = $.inArray(current, checkArr);
+                if (isChecked) { //选中状态
+                    if (result == -1) {  //则自定义数组中没有这个ID
+                        checkArr.push(current); //push到自定义数组
+                    }//否则就不用再次push
+                } else {    //未选中状态
+                    if (result != -1) { //如果在数组中存在该ID
+                        checkArr.splice(result, 1); //则删除这个ID
+                    }
+                }
+            } else if (isAll === 'all') {    //当前为全选
+
+            }
+        }
+
+        console.log(); //当前是否选中状态
+        console.log(obj.data); //选中行的相关数据
+        console.log(); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
     });
+
+    var $ = layui.$, active = {
+        removes: function () { //获取选中数据
+            let checkStatus = table.checkStatus('tbReload')
+                , data = checkStatus.data;
+            if (data.length == 0) {
+                layer.msg(`请选择操作数据`);
+                return;
+            }
+            let ids = "";
+            for (let i in data) {
+                ids += data[i].id + ",";
+            }
+            $.post(ctx + "back/sysUser/remove", {ids: ids}, function (data) {
+                layer.msg(data.msg);
+                if (data.code == 0) {
+                    table.reload('tbReload');
+                }
+            })
+        },
+        add: function () { //新增
+            location.href = ctx + "back/sysUser/add";
+        },
+        reload: function () {
+            let loginName = $('#loginName').val();
+            let userName = $('#userName').val();
+            //执行重载
+            table.reload('tbReload', {
+                where: {
+                    loginName: loginName,
+                    userName: userName
+                }
+            });
+        }
+    };
+
+    $('.test-table-reload-btn .layui-btn').on('click', function () {
+        var type = $(this).data('type');
+        active[type] ? active[type].call(this) : '';
+    });
+    $('.test-table-operate-btn .layui-btn').on('click', function () {
+        var type = $(this).data('type');
+        active[type] ? active[type].call(this) : '';
+    });
+    })
+    ;
 </script>
 </body>
 </html>

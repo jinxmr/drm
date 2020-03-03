@@ -21,12 +21,17 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+
 /**
  * 用户 信息操作处理
  *
  * @author drm
  * @date 2019-09-02
  */
+@Api(description = "用户User")
 @Controller
 @RequestMapping("back/sysUser" )
 public class UserController extends BaseController {
@@ -49,6 +54,7 @@ public class UserController extends BaseController {
     /**
      * 查询用户列表
      */
+    @ApiOperation(value = "获取用户列表")
     @RequiresPermissions("system:user:list" )
     @GetMapping("/list" )
     @ResponseBody
