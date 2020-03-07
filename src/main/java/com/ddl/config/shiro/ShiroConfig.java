@@ -117,6 +117,7 @@ public class ShiroConfig {
         // 不需要拦截的访问
         filterChainDefinitionMap.put("/back/login", "anon");
         filterChainDefinitionMap.put("/back/dologin", "anon");
+        filterChainDefinitionMap.put("/test", "anon");
         // 系统权限列表
 
         Map<String, Filter> filters = new LinkedHashMap<String, Filter>();

@@ -14,12 +14,9 @@ spring:
 
 # 日志配置
 logging:
-  level:
-    org.springframework.web: DEBUG
-    com.ddl.web.system.generater.mapper: debug
-    com.ddl.web.system.user.mapper: debug
   file:
     max-size: 50M
+  config: classpath:logback-spring.xml
 
 gen:
   author: drm

@@ -20,7 +20,7 @@ public class DrmApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DrmApplication.class, args);
-		new DrmApplication().initTask();
+		//new DrmApplication().initTask();
 	}
 
 	@PostConstruct
