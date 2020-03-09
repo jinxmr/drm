@@ -3,10 +3,6 @@ package com.ddl.eventBus;
 public class Test {
 
 	public static void main(String[] args) {
-
-		System.out.println();
-		System.out.println("分支切换dev");
-		System.out.println();
 		DataObserver1 observer1 = new DataObserver1();
 		DataObserver2 observer2 = new DataObserver2();
 
