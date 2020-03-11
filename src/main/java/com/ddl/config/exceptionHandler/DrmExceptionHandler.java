@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
-public class DrmExceptionHandler {
+public class DrmExceptionHandler extends Exception {
 
     @ExceptionHandler(value = UnauthorizedException.class)
     public String errorHandler(HttpServletRequest reqest,

@@ -14,7 +14,6 @@ public class TestErrorController {
 	@GetMapping()
 	public String errorMain() {
 
-		log.error("自定义异常抛出测试!!!");
 		int i = 1 / 0;
 		return i + "";
 	}

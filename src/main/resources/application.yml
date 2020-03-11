@@ -13,11 +13,6 @@ spring:
     time-zone: Asia/Shanghai
 
 # 日志配置
-logging:
-  file:
-    max-size: 50M
-  config: classpath:logback-spring.xml
-
 gen:
   author: drm
   packageName: com.ddl.web.system
@@ -36,3 +31,5 @@ initialize:
 shiro:
   user:
     loginUrl: back/login
+logging:
+  config: classpath:logback-spring.xml

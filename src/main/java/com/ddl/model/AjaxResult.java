@@ -50,6 +50,20 @@ public class AjaxResult extends HashMap<String, Object> {
     }
 
     /**
+     * 返回错误消息
+     *
+     * @param code 错误码
+     * @param o  内容
+     * @return 错误消息
+     */
+    public static AjaxResult error(int code, Object o) {
+        AjaxResult json = new AjaxResult();
+        json.put("code", code);
+        json.put("data", o);
+        return json;
+    }
+
+    /**
      * 返回成功消息
      *
      * @param msg 内容
