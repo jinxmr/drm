@@ -16,11 +16,8 @@ import java.util.concurrent.TimeUnit;
 @Log
 public class DrmApplication {
 
-	Random random=new Random(10000);
-
 	public static void main(String[] args) {
 		SpringApplication.run(DrmApplication.class, args);
-		//new DrmApplication().initTask();
 	}
 
 	@PostConstruct
@@ -28,12 +25,4 @@ public class DrmApplication {
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
 	}
 
-	private void initTask(){
-		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
-				log.info("seed:"+random.nextInt(999999));
-			}
-		},100,100, TimeUnit.MILLISECONDS);
-	}
 }

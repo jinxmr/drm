@@ -1,13 +1,10 @@
-package com.ddl;
+package com.ddl.web.elastic.service;
 
+import com.ddl.model.PageDomain;
+import com.ddl.model.TableDataInfo;
 import com.ddl.web.elastic.domain.Item;
 import com.ddl.web.elastic.mapper.ItemRepository;
-import com.ddl.web.system.generater.domain.TableInfo;
-import com.ddl.web.system.generater.mapper.GenMapper;
-import com.github.pagehelper.PageHelper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
-import org.apache.shiro.crypto.hash.Md5Hash;
+
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
@@ -15,9 +12,7 @@ import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,19 +20,13 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {DrmApplication.class})
-@WebAppConfiguration
-@Slf4j
-public class DrmApplicationTests {
+@Service
+public class ItemService {
 
 	@Autowired
 	private ElasticsearchTemplate elasticsearchTemplate;
@@ -47,18 +36,17 @@ public class DrmApplicationTests {
 	/**
 	 * 创建索引
 	 */
-	@Test
-	public void createIndex() {
+	public boolean createIndex() {
 		// 创建索引，会根据Item类的@Document注解信息来创建
 		boolean index = elasticsearchTemplate.createIndex(Item.class);
 		// 配置映射，会根据Item类中的id、Field等字段来自动完成映射
 		boolean type = elasticsearchTemplate.putMapping(Item.class);
+		return type;
 	}
 
 	/**
 	 * 删除索引
 	 */
-	@Test
 	public void deleteIndex() {
 		elasticsearchTemplate.deleteIndex("item");
 	}
@@ -66,7 +54,6 @@ public class DrmApplicationTests {
 	/**
 	 * 新增
 	 */
-	@Test
 	public void insert() {
 		Item item = new Item("1111", "小米手机7", "手机", "小米", 2999.00, "国产小米手机");
 		itemRepository.save(item);
@@ -75,15 +62,15 @@ public class DrmApplicationTests {
 	/**
 	 * 批量新增
 	 */
-	@Test
-	public void insertList() {
+	public Iterable<Item> insertList() {
 		List<Item> list = new ArrayList<>();
 		list.add(new Item("2L", "坚果手机R1", "手机", "锤子", 3999.00, "国产坚果手机"));
 		list.add(new Item("3L", "华为META20", "手机", "华为", 4999.00, "国产华为手机"));
 		list.add(new Item("4L", "iPhone X", "手机", "iPhone", 5100.00, "美国的苹果手机"));
 		list.add(new Item("5L", "iPhone XS", "手机", "iPhone", 5999.00, "美国的iphone"));
 		// 接收对象集合，实现批量新增
-		itemRepository.saveAll(list);
+		Iterable<Item> items = itemRepository.saveAll(list);
+		return items;
 	}
 
 	/**
@@ -95,7 +82,6 @@ public class DrmApplicationTests {
 	/**
 	 * 删除所有
 	 */
-	@Test
 	public void delete() {
 		itemRepository.deleteAll();
 	}
@@ -103,7 +89,6 @@ public class DrmApplicationTests {
 	/**
 	 * 基本查询
 	 */
-	@Test
 	public void query() {
 		// 查询全部，并按照价格降序排序
 		Iterable<Item> items = itemRepository.findAll(Sort.by("price").descending());
@@ -113,7 +98,6 @@ public class DrmApplicationTests {
 	/**
 	 * 自定义方法
 	 */
-	@Test
 	public void queryByPriceBetween() {
 		// 根据价格区间查询
 		List<Item> list = itemRepository.findByPriceBetween(5000.00, 6000.00);
@@ -123,24 +107,23 @@ public class DrmApplicationTests {
 	/**
 	 * 自定义查询
 	 */
-	@Test
-	public void search() {
+	public TableDataInfo<Item> search(String title) {
 		// 构建查询条件
 		NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
 		// 添加基本分词查询
-		queryBuilder.withQuery(QueryBuilders.matchQuery("title", "小米手机"));
+		queryBuilder.withQuery(QueryBuilders.matchQuery("content", title));
 		// 搜索，获取结果
 		Page<Item> items = itemRepository.search(queryBuilder.build());
 		// 总条数
 		long total = items.getTotalElements();
-		System.out.println("total = " + total);
+
 		items.forEach(item -> System.out.println("item = " + item));
+		return new TableDataInfo<Item>(items.toList(), (int) total);
 	}
 
 	/**
 	 * 分页查询
 	 */
-	@Test
 	public void searchByPage() {
 		// 构建查询条件
 		NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
@@ -163,7 +146,6 @@ public class DrmApplicationTests {
 	/**
 	 * 排序
 	 */
-	@Test
 	public void searchAndSort() {
 		// 构建查询条件
 		NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
@@ -182,7 +164,6 @@ public class DrmApplicationTests {
 	/**
 	 * 聚合为桶
 	 */
-	@Test
 	public void testAgg() {
 		NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
 		// 不查询任何结果
@@ -209,7 +190,6 @@ public class DrmApplicationTests {
 	/**
 	 * 嵌套聚合，求平均值
 	 */
-	@Test
 	public void testSubAgg() {
 		NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
 		// 不查询任何结果
@@ -237,5 +217,4 @@ public class DrmApplicationTests {
 			System.out.println("平均售价：" + avg.getValue());
 		}
 	}
-
 }

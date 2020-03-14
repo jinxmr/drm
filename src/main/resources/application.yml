@@ -11,8 +11,12 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
+  data:
+    elasticsearch:
+      cluster-name: my-application
+      cluster-nodes: 192.168.1.151:9300
 
-# 日志配置
+# 代码生成配置
 gen:
   author: drm
   packageName: com.ddl.web.system
@@ -33,3 +37,13 @@ shiro:
     loginUrl: back/login
 logging:
   config: classpath:logback-spring.xml
+
+swagger:
+  title: Drm 接口文档
+  description: Drm Api Documentation
+  version: 1.0.0
+  termsOfServiceUrl: https://www.baidu.com
+  contact:
+    name: Jxm
+    url: https://www.baidu.com
+    email: jinxmsir@163.com
