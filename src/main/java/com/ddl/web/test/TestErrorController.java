@@ -13,7 +13,7 @@ public class TestErrorController {
 
 	@GetMapping()
 	public String errorMain() {
-
+		System.out.println(111);
 		int i = 1 / 0;
 		return i + "";
 	}
